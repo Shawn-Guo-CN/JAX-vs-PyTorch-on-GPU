@@ -11,6 +11,7 @@ For each use case, we will compare the computing speed of JAX and PyTorch on the
 1. MNIST
 2. CIFAR-10
 3. NLP (TBD)
+4. GNN (TBD)
 
 At the same time, for each use case and benchmark, we will compare the computing speed of JAX and PyTorch on a single GPU, and on multiple GPUs, by setting the `multi_gpu` flag in the `main.py` script (as stated below).
 
@@ -18,7 +19,8 @@ Limited by ours access to GPUs, we will only be able to test on the following GP
 
 1. NVIDIA GTX 2080 Ti
 2. NVIDIA GTX 3080
-3. NVIDIA A100
+3. NVIDIA A5000
+4. NVIDIA A100
 
 The results will be updated in an open Wandb project and this README file in ``real-time''.
 
