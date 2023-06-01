@@ -56,6 +56,6 @@ The `main.py` function will then submit the Slurm scripts to the cluster.
 In the Slurm job for running JAX or PyTorch, we will first call the `run.py` script with the following arguments:
 
 ```bash
-python <framework>/run.py --benchmark <benchmark> --use_case <use_case_number>
+python <framework>/run.py --benchmark <benchmark> --use_case <use_case_number> <--multi_gpu>
 ```
 
