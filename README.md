@@ -3,22 +3,22 @@
 This project aims to compare between the computing speed of JAX and PyTorch on a various models of NVIDIA GPUs.
 We aim to compare the following typical use cases:
 
-1. Training a neural network on a single GPU.
-2. Training a neural network on multiple GPUs.
-3. Computing per-sample gradients of a neural network on a single GPU.
-4. Computing per-sample gradients of a neural network on multiple GPUs.
+1. Training a neural network on a given benchmark.
+3. Computing per-sample gradients of a neural network on a given benchmark.
+
+For each use case, we will compare the computing speed of JAX and PyTorch on the following benchmarks:
+
+1. MNIST
+2. CIFAR-10
+3. NLP (TBD)
+
+At the same time, for each use case and benchmark, we will compare the computing speed of JAX and PyTorch on a single GPU, and on multiple GPUs, by setting the `multi_gpu` flag in the `main.py` script (as stated below).
 
 Limited by ours access to GPUs, we will only be able to test on the following GPUs:
 
 1. NVIDIA GTX 2080 Ti
 2. NVIDIA GTX 3080
 3. NVIDIA A100
-
-The benchmarks we will be using are:
-
-1. MNIST
-2. CIFAR-10
-3. NLP (TBD)
 
 The results will be updated in an open Wandb project and this README file in ``real-time''.
 
@@ -30,10 +30,12 @@ We assume the clusters running the comparison experiments use Slurm as the job s
 To run a single comparison (on a specific GPU, benchmark, and use case), we will first call the `main.py` script with the following arguments:
 
 ```bash
-python main.py --benchmark <benchmark> --use_case <use_case_number>
+python main.py --benchmark <benchmark> --use_case <use_case_number> <--multi_gpu>
 ```
 
 Note that the `use_case` argument corresponds to the use case number in the list above, e.g. `1` for the task of training a neural network on a single GPU.
+
+The `multi_gpu` is used to control whether we want to run the experiment on a single GPU or all GPUs available.
 
 More importantly, the GPU model is not specified in the above command, since we rely on `torch.cuda.get_device_name()` to automatically detect and log the GPU model.
 
