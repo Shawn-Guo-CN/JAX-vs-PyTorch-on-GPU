@@ -14,20 +14,22 @@ from pytorch.models import get_model
 
 
 def train_on_benchmark(config:Munch) -> None:
-    if config.benchmark in ['MNIST', 'CIFAR10']:
+    if config.default.benchmark in ['MNIST', 'CIFAR10']:
+        device = torch.device('cuda') #TODO: add multi-gpu support
         train_loader, test_loader = get_dataloaders(config)
-        model = get_model(config.default.benchmark)
-        optimiser = eval('optim.' + config.default.optim)(
+        model = get_model(config.default.benchmark, device)
+        optimiser = eval('torch.optim.' + config.default.optim)(
                          model.parameters(), 
                          lr=config.default.lr, 
                          momentum=config.default.momentum, 
                          weight_decay=config.default.weight_decay
                         )
-        device = torch.device('cuda') #TODO: add multi-gpu support
+        
         trainer = ClassificationTrainer(model, optimiser, train_loader,
                                         test_loader, device, config
                                        )
         trainer.train()
+        
     else:
         raise ValueError(
             f'No implemented trainer for {config.default.benchmark}'

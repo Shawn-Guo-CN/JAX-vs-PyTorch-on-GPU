@@ -37,10 +37,10 @@ BENCHMARK2MODEL = {
 }
 
 
-def get_model(benchmark:str) -> torch.nn.Module:
+def get_model(benchmark:str, device:torch.device) -> torch.nn.Module:
     if benchmark in BENCHMARK2MODEL.keys():
         model_class = BENCHMARK2MODEL[benchmark]
-        return model_class()
+        return model_class().to(device)
     else:
         raise ValueError(f'No implemented model for {benchmark}')
 

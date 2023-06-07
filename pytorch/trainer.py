@@ -46,7 +46,6 @@ class ClassificationTrainer(Trainer):
             project=config.wandb.project,
             name=config.wandb.name,
             config=config.default,
-            entity=config.wandb.entity,
             reinit=True
         )
         
@@ -54,7 +53,7 @@ class ClassificationTrainer(Trainer):
         for _ in range(self.config.default.epochs):
             self.train_epoch()
             test_info = self.test()
-            self.log(test_info)
+            self.log(**test_info)
             
         self.logger.finish()
     
