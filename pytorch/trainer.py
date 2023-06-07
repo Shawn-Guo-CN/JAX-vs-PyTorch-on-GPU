@@ -30,6 +30,7 @@ class Trainer(ABC):
     
 class ClassificationTrainer(Trainer):
     def __init__(self, model:torch.nn.Module, optimiser:torch.optim.Optimizer,
+                 lr_scheduler:torch.optim.lr_scheduler,
                  train_loader:torch.utils.data.DataLoader,
                  test_loader:torch.utils.data.DataLoader,
                  device:torch.device, config:Munch
@@ -37,6 +38,7 @@ class ClassificationTrainer(Trainer):
         super().__init__()
         self.model = model
         self.optimiser = optimiser
+        self.lr_scheduler = lr_scheduler
         self.train_loader = train_loader
         self.test_loader = test_loader
         self.device = device
@@ -66,6 +68,7 @@ class ClassificationTrainer(Trainer):
             loss.backward()
             self.optimiser.step()
             self.logger.log({"train loss": loss.item()})
+        self.lr_scheduler.step()
     
     def test(self) -> None:
         self.model.eval()

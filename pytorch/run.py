@@ -24,9 +24,13 @@ def train_on_benchmark(config:Munch) -> None:
                          momentum=config.default.momentum, 
                          weight_decay=config.default.weight_decay
                         )
+        lr_scheduler = eval(
+            'torch.optim.lr_scheduler.' + config.default.lr_scheduler
+        )
         
-        trainer = ClassificationTrainer(model, optimiser, train_loader,
-                                        test_loader, device, config
+        trainer = ClassificationTrainer(model, optimiser, lr_scheduler, 
+                                        train_loader, test_loader, 
+                                        device, config
                                        )
         trainer.train()
         
