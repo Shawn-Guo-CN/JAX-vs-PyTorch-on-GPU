@@ -38,6 +38,7 @@ test_transform = """transforms.Compose([
     ])"""
 
 [CIFAR10]
+epochs = 200
 train_transform = """transforms.Compose([
         transforms.ToTensor(),
         transforms.RandomCrop(32, padding=4),
