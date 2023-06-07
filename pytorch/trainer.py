@@ -45,13 +45,13 @@ class ClassificationTrainer(Trainer):
         self.logger = wandb.init(
             project=config.wandb.project,
             name=config.wandb.name,
-            config=config,
+            config=config.default,
             entity=config.wandb.entity,
             reinit=True
         )
         
     def train(self) -> None:
-        for _ in range(self.config.epochs):
+        for _ in range(self.config.default.epochs):
             self.train_epoch()
             test_info = self.test()
             self.log(test_info)
