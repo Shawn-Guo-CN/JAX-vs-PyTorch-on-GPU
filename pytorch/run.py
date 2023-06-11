@@ -9,7 +9,7 @@ PROJ_DIR = str(pathlib.Path(__file__).parent.parent.absolute())
 sys.path.append(PROJ_DIR)
 from utils import get_config, get_run_config
 from dataloader import get_dataloaders
-from pytorch.trainer import ClassificationTrainer
+from pytorch.trainer import ClassificationTrainer, GNNClassificationTrainer
 from pytorch.models import get_model
 
 
@@ -17,7 +17,7 @@ def train_on_benchmark(config:Munch) -> None:
     if config.default.benchmark in ['MNIST', 'CIFAR10']:
         device = torch.device('cuda') #TODO: add multi-gpu support
         train_loader, test_loader = get_dataloaders(config)
-        model = get_model(config.default.benchmark, device)
+        model = get_model(config, device)
         optimiser = eval('torch.optim.' + config.default.optim)(
                          model.parameters(), 
                          lr=config.default.lr, 
@@ -32,6 +32,28 @@ def train_on_benchmark(config:Munch) -> None:
                                         train_loader, test_loader, 
                                         device, config
                                        )
+        trainer.train()
+        
+    elif config.default.benchmark in ['CITESEER', 'REDDIT']:
+        device = torch.device('cuda')
+        train_loader, test_loader, feature, y = get_dataloaders(config)
+        model = get_model(config, device)
+        
+        optimiser = eval('torch.optim.' + config.default.optim)(
+                         model.parameters(), 
+                         lr=config.default.lr, 
+                         momentum=config.default.momentum, 
+                         weight_decay=config.default.weight_decay
+                        )
+        lr_scheduler = eval(
+            'torch.optim.lr_scheduler.' + config.default.lr_scheduler
+        )
+        
+        trainer = GNNClassificationTrainer(model, optimiser, lr_scheduler,
+                                           feature, y,
+                                           train_loader, test_loader,
+                                           device, config
+                                           )
         trainer.train()
         
     else:

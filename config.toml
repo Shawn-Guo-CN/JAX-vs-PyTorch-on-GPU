@@ -53,4 +53,36 @@ test_transform = """transforms.Compose([
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])"""
 
+[CITESEER]
+epochs = 50
+lr = 0.01
+sizes = [15, 10]
+num_layers = 2
+batch_size = 64
+
+in_channels = 3703
+hidden_channels = 512
+num_classes = 6
+
+[REDDIT]
+epochs = 100
+lr = 0.01
+sizes = [20, 10]
+num_layers = 2
+batch_size = 1024
+
+in_channels = 602
+hidden_channels = 256
+num_classes = 41
+
+[PRODUCT]
+epochs = 200
+size = [25, 10]
+num_layers = 2
+batch_size = 1024
+
+in_channels = 100
+hidden_channels = 256
+num_classes = 6
+
 [IMAGENET]
