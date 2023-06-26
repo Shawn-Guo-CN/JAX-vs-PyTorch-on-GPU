@@ -7,6 +7,7 @@ from torchvision import transforms, datasets
 from torch_geometric.datasets import Planetoid, Reddit
 from torch_geometric.loader import DataLoader, NeighborSampler
 
+
 def get_data(config:Munch):
     if config.default.benchmark in ['CITESEER']:
         dataset = Planetoid(root=config.default.data_dir, name=config.default.benchmark, split='full')
@@ -21,6 +22,7 @@ def get_data(config:Munch):
     elif config.default.benchmark in ['PRODUCT']:
         pass
     return data, train_mask, test_mask
+
 
 def get_dataloaders(config:Munch) -> \
         Tuple[torch.utils.data.DataLoader, torch.utils.data.DataLoader]:
@@ -42,8 +44,9 @@ def get_dataloaders(config:Munch) -> \
         train_kwargs = {'batch_size': config.default.batch_size,
                         'num_workers': config.torch.num_workers,
                         'pin_memory': config.torch.pin_memory,
-                        'shuffle': True
-                    }
+                        'shuffle': True,
+                        'drop_last': True
+                       }
         test_kwargs = train_kwargs.copy()
         test_kwargs.update({'batch_size': config.default.test_batch_size})
         
@@ -69,6 +72,3 @@ def get_dataloaders(config:Munch) -> \
         raise ValueError(
             f'No implemented data loader for {config.default.benchmark}'
         )
-    
-    
-

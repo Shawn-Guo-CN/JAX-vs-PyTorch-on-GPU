@@ -84,7 +84,8 @@ def get_model(config:Munch, device:torch.device) -> torch.nn.Module:
         return model_class(config.default.in_channels,
                            config.default.hidden_channels,
                            config.default.num_layers,
-                           config.default.num_classes).to(device)
+                           config.default.num_classes
+                          ).to(device)
     else:
         raise ValueError(f'No implemented model for {benchmark}')
 
