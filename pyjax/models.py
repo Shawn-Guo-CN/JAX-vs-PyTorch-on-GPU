@@ -29,6 +29,6 @@ def get_model(config:Munch) -> nn.Module:
     benchmark = config.default.benchmark
     if config.default.benchmark in BENCHMARK2MODEL.keys():
         model_class = BENCHMARK2MODEL[benchmark]
-        return model_class
+        return model_class()
     else:
         raise ValueError(f'No implemented model for {benchmark}')

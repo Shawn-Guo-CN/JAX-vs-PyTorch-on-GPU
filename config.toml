@@ -6,6 +6,7 @@ name = "none"
 proj_dir = "none"
 data_dir = "none"
 
+seed = 0
 optim = "SGD"
 lr = 0.1
 momentum = 0.9
@@ -16,6 +17,8 @@ lr_scheduler = "StepLR(optimiser, step_size=2, gamma=0.7)"
 epochs = 10
 batch_size = 128
 test_batch_size = 1024
+
+input_size = [1, 28, 28, 1]
 
 [benchmarks]
 
@@ -38,6 +41,8 @@ test_transform = """transforms.Compose([
         transforms.Normalize([0.1307,], [0.3081,])
     ])"""
 
+input_size = [1, 28, 28, 1]
+
 [CIFAR10]
 epochs = 200
 lr_scheduler = "CosineAnnealingLR(optimiser, T_max=200)"
@@ -52,6 +57,8 @@ test_transform = """transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
     ])"""
+
+input_size = [1, 32, 32, 3]
 
 [CITESEER]
 epochs = 50
