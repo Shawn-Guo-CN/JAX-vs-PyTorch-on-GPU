@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp  # JAX NumPy
 import torch
 
+import wandb
 from clu import metrics
 from flax.training import train_state  # Useful dataclass to keep train state
 from flax import struct                # Flax dataclasses
@@ -24,7 +25,7 @@ class TrainState(train_state.TrainState):
 
 
 @jax.jit
-def train_step(state, batch):
+def classification_train_step(state, batch):
     """Train for a single step."""
     def loss_fn(params, dropout_key):
         logits = state.apply_fn({'params': params}, 
@@ -34,17 +35,27 @@ def train_step(state, batch):
                                )
         loss = optax.softmax_cross_entropy_with_integer_labels(
             logits=logits, labels=batch['label']).mean()
-        return loss
-    grad_fn = jax.grad(loss_fn)
-    grads = grad_fn(state.params, state.dropout_key)
+        return loss, logits
+    grad_fn = jax.value_and_grad(loss_fn, has_aux=True)
+    (loss, logits), grads = grad_fn(state.params, state.dropout_key)
+
+    # update the state.params with the gradients
     state = state.apply_gradients(grads=grads)
     dropout_key = jax.random.split(key=state.dropout_key, num=2)[0]
     state = state.replace(dropout_key=dropout_key)
+
+    # update the state.metrics with the new loss and logits
+    metric_updates = state.metrics.single_from_model_output(
+                         logits=logits, labels=batch['label'], loss=loss
+                     )
+    metrics = state.metrics.merge(metric_updates)
+    state = state.replace(metrics=metrics)
+
     return state
 
 
 @jax.jit
-def compute_metrics(state, batch):
+def classification_compute_metrics(state, batch):
     logits = state.apply_fn({'params': state.params}, 
                             batch['image'],
                             training=False
@@ -84,6 +95,14 @@ class ClassificationTrainer(ABC):
                                 'test_accuracy': []
                                }
 
+        # TODO: replace log() with wandb.log()
+        # self.logger = wandb.init(
+        #     project=config.wandb.project,
+        #     name=config.wandb.name,
+        #     config=config.default,
+        #     reinit=True
+        # )
+
     def create_train_state(self)  -> None:
         _, params_key, dropout_key = jax.random.split(key=self.rng, num=3)
         params = self.model.init({'params': params_key,
@@ -91,6 +110,7 @@ class ClassificationTrainer(ABC):
                                  }, 
                                  jnp.ones(self.input_size)
                                 )['params']
+        #TODO: add optimizer to config
         tx = optax.sgd(self.learning_rate, self.momentum)
 
         self.train_state =  TrainState.create(apply_fn=self.model.apply,
@@ -113,11 +133,12 @@ class ClassificationTrainer(ABC):
         for i in range(self.config.default.epochs):
             """Train for a single epoch."""
             for image, label in self.train_loader:
+                #TODO: implement dtype conversion in dataloader
                 image = jnp.array(image).transpose((0, 2, 3, 1))
                 label = jnp.array(label)
                 batch = {'image': image, 'label': label}
-                self.train_state = train_step(self.train_state, batch)
-                self.train_state = compute_metrics(self.train_state, batch)
+                self.train_state = \
+                    classification_train_step(self.train_state, batch)
 
             for metric,value in self.train_state.metrics.compute().items():
                 self.metrics_history[f'train_{metric}'].append(value)
@@ -131,9 +152,9 @@ class ClassificationTrainer(ABC):
                 image = jnp.array(image).transpose((0, 2, 3, 1))
                 label = jnp.array(label)
                 test_batch = {'image': image, 'label': label}
-                test_state = compute_metrics(state=test_state,
-                                             batch=test_batch
-                                            )
+                test_state = classification_compute_metrics(state=test_state,
+                                                            batch=test_batch
+                                                           )
 
             for metric,value in test_state.metrics.compute().items():
                 self.metrics_history[f'test_{metric}'].append(value)
